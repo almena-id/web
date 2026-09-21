@@ -1,0 +1,61 @@
+version: '3'
+
+# Almena launch page — a static Astro site. `task build` writes dist/, and
+# dist/ is what the edge serves at almena.id until the portal takes over.
+
+tasks:
+  default:
+    desc: List the available tasks
+    cmds:
+      - task --list
+    silent: true
+
+  install:
+    desc: Install the Node dependencies
+    sources:
+      - package.json
+      - pnpm-lock.yaml
+    generates:
+      - node_modules/.modules.yaml
+    cmds:
+      - pnpm install --frozen-lockfile
+
+  dev:
+    desc: Run the Astro development server
+    deps: [install]
+    interactive: true
+    cmds:
+      - pnpm dev
+
+  build:
+    desc: Build the static site into dist/
+    deps: [install]
+    cmds:
+      - pnpm build
+
+  preview:
+    desc: Serve the built site the way the edge will
+    deps: [build]
+    interactive: true
+    cmds:
+      - pnpm preview
+
+  check:
+    desc: Run every check (Astro templates and TypeScript)
+    deps: [install]
+    cmds:
+      # `astro check` needs TypeScript's programmatic API, which the 7.x
+      # native compiler does not ship yet; package.json pins 6.x for that.
+      - pnpm check
+
+  branding:
+    desc: Copy the logo and favicon from the workspace branding assets
+    cmds:
+      - cp ../assets/branding/app-icon.png public/logo.png
+      - cp ../assets/branding/app-icon.png public/favicon.png
+      - sips -z 64 64 public/favicon.png
+
+  clean:
+    desc: Remove build output and installed dependencies
+    cmds:
+      - rm -rf dist node_modules .astro .task

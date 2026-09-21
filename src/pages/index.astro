@@ -1,0 +1,62 @@
+---
+import "../styles/global.css";
+---
+
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <meta name="color-scheme" content="dark" />
+    <meta name="theme-color" content="#0f1013" />
+    <meta name="robots" content="noindex" />
+    <meta name="generator" content={Astro.generator} />
+    <title>Almena</title>
+    <link rel="icon" type="image/png" href="/favicon.png" />
+  </head>
+  <body>
+    <main class="stage">
+      <img class="mark" src="/logo.png" alt="" width="1024" height="1024" draggable="false" />
+      <h1 class="name">ALMENA</h1>
+      <p class="date">Nov 11</p>
+      <div class="countdown" role="timer" aria-live="off">
+        <span class="unit"><b data-unit="days">00</b><i>days</i></span>
+        <span class="sep">:</span>
+        <span class="unit"><b data-unit="hours">00</b><i>hours</i></span>
+        <span class="sep">:</span>
+        <span class="unit"><b data-unit="minutes">00</b><i>mins</i></span>
+        <span class="sep">:</span>
+        <span class="unit"><b data-unit="seconds">00</b><i>secs</i></span>
+      </div>
+    </main>
+
+    <script>
+      // Launch: 11 November 2026, midnight in Madrid (CET, UTC+1 by then).
+      const LAUNCH = new Date("2026-11-11T00:00:00+01:00");
+
+      const units: Record<string, HTMLElement> = {};
+      for (const el of document.querySelectorAll<HTMLElement>("[data-unit]")) {
+        units[el.dataset.unit!] = el;
+      }
+      const countdown = document.querySelector(".countdown")!;
+
+      const pad = (n: number) => String(n).padStart(2, "0");
+
+      function tick() {
+        const left = Math.max(0, LAUNCH.getTime() - Date.now());
+        const total = Math.floor(left / 1000);
+        units.days.textContent = pad(Math.floor(total / 86400));
+        units.hours.textContent = pad(Math.floor((total % 86400) / 3600));
+        units.minutes.textContent = pad(Math.floor((total % 3600) / 60));
+        units.seconds.textContent = pad(total % 60);
+        if (left === 0) {
+          countdown.classList.add("done");
+          clearInterval(timer);
+        }
+      }
+
+      tick();
+      const timer = setInterval(tick, 1000);
+    </script>
+  </body>
+</html>
